@@ -4,24 +4,26 @@ from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 
 
 class RegisterAgentRequest(BaseModel):
-    name: str = Field(..., min_length=2, max_length=100,
-                      description="Nom complet de l'agent")
-    agency_name: str = Field(..., min_length=2,
-                             max_length=100, description="Nom de l'agence")
+    name: str = Field(
+        ..., min_length=2, max_length=100, description="Nom complet de l'agent"
+    )
+    agency_name: str = Field(
+        ..., min_length=2, max_length=100, description="Nom de l'agence"
+    )
     email: EmailStr
     phone: str = Field(..., min_length=10, max_length=20)
     password: str = Field(..., min_length=8, max_length=100)
-    rsac_number: str = Field(..., min_length=5,
-                             max_length=50, description="Numéro RSAC")
+    rsac_number: str = Field(
+        ..., min_length=5, max_length=50, description="Numéro RSAC"
+    )
     city: str = Field(..., min_length=2, max_length=100)
 
-    @field_validator('rsac_number')
+    @field_validator("rsac_number")
     @classmethod
     def validate_rsac(cls, v: str) -> str:
-        # Exemple: RSAC doit commencer par des chiffres
         if not any(c.isdigit() for c in v):
-            raise ValueError('RSAC number must contain at least one digit')
-        return v.upper()  # Normalise en majuscules
+            raise ValueError("RSAC number must contain at least one digit")
+        return v.upper()
 
 
 class AgentResponse(BaseModel):

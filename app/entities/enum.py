@@ -33,3 +33,8 @@ class FeatureCategory(str, enum.Enum):
     EXTERIOR = "exterior"
     KITCHEN = "kitchen"
     BATHROOM = "bathroom"
+
+
+class TransactionType(str, enum.Enum):
+    SALE = "sale"
+    RENT = "rent"

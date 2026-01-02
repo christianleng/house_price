@@ -4,8 +4,17 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 import logging
 
+from app.agents.schemas import AgentResponse
+from app.entities.agent import Agent
 from app.entities.user import User
-from app.auth.schemas import RegisterUserRequest, Token, UserResponse
+from app.auth.schemas import (
+    RegisterUserRequest,
+    Token,
+    TokenWithAgent,
+    TokenWithUser,
+    UserResponse,
+    UserRole,
+)
 from app.auth.security import (
     get_password_hash,
     verify_password,
@@ -17,12 +26,19 @@ from app.config import settings
 
 
 def register_user(db: Session, register_request: RegisterUserRequest) -> UserResponse:
-    existing_user = db.query(User).filter(
-        User.email == register_request.email).first()
+    existing_user = db.query(User).filter(User.email == register_request.email).first()
     if existing_user:
         raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered"
+        )
+
+    existing_agent = (
+        db.query(Agent).filter(Agent.email == register_request.email).first()
+    )
+    if existing_agent:
+        raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
+            detail="Email already registered as agent",
         )
 
     try:
@@ -33,25 +49,21 @@ def register_user(db: Session, register_request: RegisterUserRequest) -> UserRes
             last_name=register_request.last_name,
             phone=register_request.phone,
             password_hash=get_password_hash(register_request.password),
-            is_active=True
+            is_active=True,
         )
 
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
 
-        logging.info(
-            f"✅ User registered successfully: {register_request.email}")
-
+        logging.info(f"✅ User registered successfully: {register_request.email}")
         return UserResponse.model_validate(new_user)
 
     except IntegrityError as e:
         db.rollback()
-        logging.error(
-            f"❌ Database integrity error during registration: {str(e)}")
+        logging.error(f"❌ Database integrity error during registration: {str(e)}")
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered"
         )
 
     except Exception as e:
@@ -59,7 +71,7 @@ def register_user(db: Session, register_request: RegisterUserRequest) -> UserRes
         logging.error(f"❌ Failed to register user: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to register user"
+            detail="Failed to register user",
         )
 
 
@@ -67,34 +79,90 @@ def authenticate_user(email: str, password: str, db: Session) -> User | None:
     user = db.query(User).filter(User.email == email).first()
 
     if not user:
-        logging.warning(
-            f"⚠️  Authentication failed: user not found for email {email}")
+        logging.warning(f"⚠️  Authentication failed: user not found for email {email}")
         return None
 
     if not user.is_active:
-        logging.warning(
-            f"⚠️  Authentication failed: user inactive for email {email}")
+        logging.warning(f"⚠️  Authentication failed: user inactive for email {email}")
         return None
 
     if not verify_password(password, user.password_hash):
-        logging.warning(
-            f"⚠️  Authentication failed: invalid password for email {email}")
+        logging.warning(f"⚠️  Authentication failed: invalid password for email {email}")
         return None
 
     logging.info(f"✅ User authenticated successfully: {email}")
     return user
 
 
-def login_for_access_token(email: str, password: str, db: Session) -> Token:
-    user = authenticate_user(email, password, db)
+def login_for_access_token(
+    email: str, password: str, db: Session
+) -> Token | TokenWithUser | TokenWithAgent:
+    user = db.query(User).filter(User.email == email).first()
 
-    if not user:
-        raise AuthenticationError()
+    if user:
+        if not user.is_active:
+            logging.warning(f"⚠️ Inactive user tried to login: {email}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Account is inactive",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
-    access_token = create_access_token(
-        email=user.email,
-        user_id=user.id,
-        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        if verify_password(password, user.password_hash):
+            logging.info(f"✅ User authenticated: {email}")
+
+            access_token = create_access_token(
+                email=user.email,
+                user_id=user.id,
+                role=UserRole.USER,
+                expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+            )
+
+            return TokenWithUser(
+                access_token=access_token,
+                token_type="bearer",
+                role=UserRole.USER,
+                user=UserResponse.model_validate(user),
+            )
+
+    agent = db.query(Agent).filter(Agent.email == email).first()
+
+    if agent:
+        if not agent.is_active:
+            logging.warning(f"⚠️ Inactive agent tried to login: {email}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Account is inactive",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        if verify_password(password, agent.password_hash):
+            logging.info(f"✅ Agent authenticated: {email}")
+
+            if not agent.is_verified:
+                logging.warning(f"⚠️ Unverified agent logged in: {email}")
+
+            access_token = create_access_token(
+                email=agent.email,
+                user_id=agent.id,
+                role=UserRole.AGENT,
+                expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+            )
+
+            return TokenWithAgent(
+                access_token=access_token,
+                token_type="bearer",
+                role=UserRole.AGENT,
+                agent=AgentResponse.model_validate(agent),
+            )
+
+    logging.warning(f"⚠️ Authentication failed for: {email}")
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Incorrect email or password",
+        headers={"WWW-Authenticate": "Bearer"},
     )
 
-    return Token(access_token=access_token, token_type="bearer")
+
+def get_current_user_info(user: User) -> UserResponse:
+    return UserResponse.model_validate(user)

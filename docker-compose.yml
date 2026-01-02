@@ -3,15 +3,16 @@ version: "3.8"
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: real-estate-db
+    container_name: house-price-db
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
     networks:
-      - real-estate-network
+      - house-price-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -21,7 +22,7 @@ services:
 
   fastapi:
     build: .
-    container_name: real-estate-api
+    container_name: house-price-api
     ports:
       - "8000:8000"
     environment:
@@ -36,12 +37,12 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - real-estate-network
+      - house-price-network
     restart: unless-stopped
 
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: real-estate-pgadmin
+    container_name: house-price-pgadmin
     environment:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
@@ -50,11 +51,11 @@ services:
     depends_on:
       - postgres
     networks:
-      - real-estate-network
+      - house-price-network
     restart: unless-stopped
 
 networks:
-  real-estate-network:
+  house-price-network:
     driver: bridge
 
 volumes:

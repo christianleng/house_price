@@ -7,10 +7,7 @@ from app.agents.dependencies import CurrentAgent, CurrentVerifiedAgent
 from app.database.core import DbSession
 from app.rate_limiting import limiter
 
-router = APIRouter(
-    prefix='/agents',
-    tags=['Agents']
-)
+router = APIRouter(prefix="/agents", tags=["Agents"])
 
 
 @router.post(
@@ -18,13 +15,11 @@ router = APIRouter(
     response_model=schemas.AgentResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Register a new agent",
-    description="Create a new real estate agent account"
+    description="Create a new House Price agent account",
 )
 @limiter.limit("3/hour")
 async def register_agent(
-    request: Request,
-    db: DbSession,
-    register_request: schemas.RegisterAgentRequest
+    request: Request, db: DbSession, register_request: schemas.RegisterAgentRequest
 ):
     return service.register_agent(db, register_request)
 
@@ -33,16 +28,13 @@ async def register_agent(
     "/token",
     response_model=schemas.AgentToken,
     summary="Login for access token",
-    description="Authenticate an agent and receive a JWT access token"
+    description="Authenticate an agent and receive a JWT access token",
 )
 async def login_agent_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    db: DbSession
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: DbSession
 ):
     return service.login_agent_for_access_token(
-        email=form_data.username,
-        password=form_data.password,
-        db=db
+        email=form_data.username, password=form_data.password, db=db
     )
 
 
@@ -50,7 +42,7 @@ async def login_agent_for_access_token(
     "/me",
     response_model=schemas.AgentResponse,
     summary="Get current agent",
-    description="Get the currently authenticated agent's information"
+    description="Get the currently authenticated agent's information",
 )
 async def get_current_agent_info(current_agent: CurrentAgent):
     return schemas.AgentResponse.model_validate(current_agent)
@@ -60,12 +52,10 @@ async def get_current_agent_info(current_agent: CurrentAgent):
     "/me",
     response_model=schemas.AgentResponse,
     summary="Update current agent",
-    description="Update the authenticated agent's information"
+    description="Update the authenticated agent's information",
 )
 async def update_current_agent(
-    update_data: schemas.UpdateAgentRequest,
-    current_agent: CurrentAgent,
-    db: DbSession
+    update_data: schemas.UpdateAgentRequest, current_agent: CurrentAgent, db: DbSession
 ):
     return service.update_agent(current_agent.id, update_data, db)
 
@@ -74,7 +64,7 @@ async def update_current_agent(
     "/verified-only",
     response_model=schemas.AgentResponse,
     summary="Verified agents only",
-    description="Endpoint accessible only by verified agents"
+    description="Endpoint accessible only by verified agents",
 )
 async def verified_agents_only(current_agent: CurrentVerifiedAgent):
     return schemas.AgentResponse.model_validate(current_agent)
