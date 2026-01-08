@@ -29,6 +29,21 @@ def search_properties(
     if filters.has_parking is not None:
         query = query.filter(Property.has_parking == filters.has_parking)
 
+    if filters.has_garden is not None:
+        query = query.filter(Property.has_garden == filters.has_garden)
+
+    if filters.has_balcony is not None:
+        query = query.filter(Property.has_balcony == filters.has_balcony)
+
+    if filters.has_terrace is not None:
+        query = query.filter(Property.has_terrace == filters.has_terrace)
+
+    if filters.has_elevator is not None:
+        query = query.filter(Property.has_elevator == filters.has_elevator)
+
+    if filters.has_cave is not None:
+        query = query.filter(Property.has_cave == filters.has_cave)
+
     if filters.property_type:
         query = query.filter(Property.property_type == filters.property_type)
 
@@ -113,7 +128,6 @@ def create_properties(
             energy_rating=property_data.energy_rating,
             description=property_data.description,
             # is_active=property_data.is_active,
-            views_count=0,  # TODO Fixe views_count
         )
 
         db.add(new_property)
@@ -132,6 +146,36 @@ def create_properties(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create property",
         )
+
+
+def count_properties(db: Session, filters: schemas.PropertyFilterParams) -> int:
+    query = db.query(Property)
+
+    if filters.city:
+        query = query.filter(Property.city == filters.city)
+    if filters.postal_code:
+        query = query.filter(Property.postal_code == filters.postal_code)
+    if filters.price_min is not None:
+        query = query.filter(Property.price >= filters.price_min)
+    if filters.price_max is not None:
+        query = query.filter(Property.price <= filters.price_max)
+    if filters.rooms_min is not None:
+        query = query.filter(Property.rooms >= filters.rooms_min)
+    if filters.surface_min is not None:
+        query = query.filter(Property.surface_area >= filters.surface_min)
+    if filters.property_type:
+        query = query.filter(Property.property_type == filters.property_type)
+
+    if filters.has_parking is not None:
+        query = query.filter(Property.has_parking == filters.has_parking)
+    if filters.has_garden is not None:
+        query = query.filter(Property.has_garden == filters.has_garden)
+    if filters.has_balcony is not None:
+        query = query.filter(Property.has_balcony == filters.has_balcony)
+    if filters.has_elevator is not None:
+        query = query.filter(Property.has_elevator == filters.has_elevator)
+
+    return query.count()
 
 
 def get_property_by_id(property_id: UUID, db: Session):

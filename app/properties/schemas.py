@@ -127,7 +127,6 @@ class PropertyResponse(BaseModel):
     created_at: datetime
     updated_at: datetime | None
     is_active: bool
-    views_count: int
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -145,17 +144,27 @@ class PropertySummaryResponse(BaseModel):
     title: str
     city: str
     postal_code: str
-    price: Optional[int] = None
-    price_per_sqm: Optional[int] = None
-    property_type: PropertyType
+    price: Optional[int]
+    price_per_sqm: Optional[int]
+    property_type: str
     surface_area: int
     rooms: int
     bedrooms: int
     has_parking: bool
     has_garden: bool
+    has_balcony: bool
+    has_terrace: bool
+    has_elevator: bool
+    has_cave: bool
+    energy_rating: Optional[str]
     created_at: datetime
+    thumbnail_url: Optional[str] = None
 
-    thumbnail_url: str | None = None
+    # rent
+    # rent_price_monthly: int
+    # rent_charges: int
+    # charges_included: bool
+    # deposit: int
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -241,7 +250,7 @@ class PropertyFilterParams(BaseModel):
 
     energy_rating: EnergyRating | None = None
 
-    transaction_type: TransactionType | None = None  # Filtrer vente/location
+    transaction_type: TransactionType | None = None
     rent_min: int | None = None
     rent_max: int | None = None
     is_furnished: bool | None = None
@@ -283,19 +292,11 @@ class PaginatedPropertiesResponse(BaseModel):
     page_size: int
     total_pages: int
 
-    @property
-    def has_next(self) -> bool:
-        return self.page < self.total_pages
-
-    @property
-    def has_previous(self) -> bool:
-        return self.page > 1
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PropertyStatsResponse(BaseModel):
-
     property_id: UUID
-    views_count: int
     favorites_count: int
     days_online: int
     average_price_in_city: float | None

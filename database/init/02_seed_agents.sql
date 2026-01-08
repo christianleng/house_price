@@ -147,4 +147,4 @@ INSERT INTO agents (id, name, agency_name, email, phone, password_hash, rsac_num
     TRUE
 );
 
-SELECT 'Agents seeded successfully! Total: ' || COUNT(*) FROM agents;
+SELECT '✅ === Agents seeded successfully! Total: ' || COUNT(*) FROM agents;

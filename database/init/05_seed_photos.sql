@@ -328,5 +328,5 @@ INSERT INTO favorites (id, user_id, property_id) VALUES
 ('257caa3f-1fbe-4adc-8fc3-2bcde559cbe4', 'f6eb9ae3-674b-4804-840a-3e302bbee554', '4cd19b24-3e11-439a-a8ad-d5af0b2c4b05'),
 ('81f971a4-a6ab-47b6-94d7-8174a27c0ee9', '02e8577c-c21d-43d2-ad34-222da8c72998', '53fa9092-2e73-4d07-abcc-1db5da1c257b');
 
-SELECT 'Photos seeded successfully! Total: ' || COUNT(*) FROM photos;
-SELECT 'Favorites seeded successfully! Total: ' || COUNT(*) FROM favorites;
+SELECT '✅ === Photos seeded successfully! Total: ' || COUNT(*) FROM photos;
+SELECT '✅ === Favorites seeded successfully! Total: ' || COUNT(*) FROM favorites;

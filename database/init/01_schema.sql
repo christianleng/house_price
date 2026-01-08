@@ -152,8 +152,7 @@ CREATE TABLE IF NOT EXISTS properties (
     -- Métadonnées
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    is_active BOOLEAN DEFAULT TRUE,
-    views_count INTEGER DEFAULT 0
+    is_active BOOLEAN DEFAULT TRUE
 );
 
 -- Table photos
@@ -238,4 +237,4 @@ CREATE INDEX IF NOT EXISTS idx_favorites_property_id ON favorites(property_id);
 
 -- ============== VERIFICATION ==============
 
-SELECT 'Schema created successfully!' AS status;
+SELECT '✅ === Schema created successfully!' AS status;

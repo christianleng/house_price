@@ -26,6 +26,13 @@ async def create_properties(
     return service.create_properties(property_data, current_agent.id, db)
 
 
+@router.get("/count", response_model=int)
+async def count_properties(
+    filters: Annotated[schemas.PropertyFilterParams, Depends()], db: DbSession
+):
+    return service.count_properties(db, filters)
+
+
 @router.get("/{property_id}", response_model=schemas.PropertyResponse)
 async def get_property_by_id(property_id: UUID, db: DbSession):
     return service.get_property_by_id(property_id, db)

@@ -117,4 +117,4 @@ INSERT INTO users (id, email, first_name, last_name, password_hash, phone, is_ac
     TRUE
 );
 
-SELECT 'Users seeded successfully! Total: ' || COUNT(*) FROM users;
+SELECT '✅ === Users seeded successfully! Total: ' || COUNT(*) FROM users;

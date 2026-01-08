@@ -96,7 +96,6 @@ class Property(Base):
         onupdate=lambda: datetime.now(timezone.utc),
     )
     is_active = Column(Boolean, default=True)
-    views_count = Column(Integer, nullable=False)
 
     transaction_type = Column(SQLEnum(TransactionType), nullable=False, index=True)
     transaction_type = Column(

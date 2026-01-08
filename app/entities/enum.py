@@ -7,6 +7,12 @@ class PropertyType(str, enum.Enum):
     VILLA = "villa"
     STUDIO = "studio"
     LOFT = "loft"
+    DUPLEX = "duplex"
+    TRIPLEX = "triplex"
+    PENTHOUSE = "penthouse"
+    LAND = "land"
+    COMMERCIAL = "commercial"
+    PARKING = "parking"
 
 
 class EnergyRating(str, enum.Enum):
@@ -24,6 +30,10 @@ class HeatingType(str, enum.Enum):
     COLLECTIVE = "collective"
     ELECTRIC = "electric"
     GAS = "gas"
+    FUEL = "fuel"
+    WOOD = "wood"
+    SOLAR = "solar"
+    NONE = "none"
     HEAT_PUMP = "heat_pump"
 
 
