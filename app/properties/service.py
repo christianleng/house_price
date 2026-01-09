@@ -14,60 +14,166 @@ def search_properties(
 ) -> schemas.PaginatedPropertiesResponse:
     query = db.query(Property)
 
+    # --------------------
+    # Localisation
+    # --------------------
     if filters.city:
         query = query.filter(Property.city == filters.city)
 
-    if filters.price_min:
+    if filters.district:
+        query = query.filter(Property.district == filters.district)
+
+    if filters.neighborhood:
+        query = query.filter(Property.neighborhood == filters.neighborhood)
+
+    if filters.postal_code:
+        query = query.filter(Property.postal_code == filters.postal_code)
+
+    # --------------------
+    # Transaction
+    # --------------------
+    if filters.transaction_type:
+        query = query.filter(Property.transaction_type == filters.transaction_type)
+
+    # --------------------
+    # Prix
+    # --------------------
+    if filters.price_min is not None:
         query = query.filter(Property.price >= filters.price_min)
 
-    if filters.price_max:
+    if filters.price_max is not None:
         query = query.filter(Property.price <= filters.price_max)
 
-    if filters.rooms_min:
+    if filters.price_per_sqm_min is not None:
+        query = query.filter(Property.price_per_sqm >= filters.price_per_sqm_min)
+
+    if filters.price_per_sqm_max is not None:
+        query = query.filter(Property.price_per_sqm <= filters.price_per_sqm_max)
+
+    # Location uniquement
+    if filters.rent_price_min is not None:
+        query = query.filter(Property.rent_price_monthly >= filters.rent_price_min)
+
+    if filters.rent_price_max is not None:
+        query = query.filter(Property.rent_price_monthly <= filters.rent_price_max)
+
+    # --------------------
+    # Surfaces & pièces
+    # --------------------
+    if filters.surface_min is not None:
+        query = query.filter(Property.surface_area >= filters.surface_min)
+
+    if filters.surface_max is not None:
+        query = query.filter(Property.surface_area <= filters.surface_max)
+
+    if filters.rooms_min is not None:
         query = query.filter(Property.rooms >= filters.rooms_min)
 
-    if filters.has_parking is not None:
-        query = query.filter(Property.has_parking == filters.has_parking)
+    if filters.bedrooms_min is not None:
+        query = query.filter(Property.bedrooms >= filters.bedrooms_min)
 
+    if filters.bathrooms_min is not None:
+        query = query.filter(Property.bathrooms >= filters.bathrooms_min)
+
+    if filters.toilets_min is not None:
+        query = query.filter(Property.toilets >= filters.toilets_min)
+
+    if filters.floors_min is not None:
+        query = query.filter(Property.floors >= filters.floors_min)
+
+    # --------------------
+    # Type de bien
+    # --------------------
+    if filters.property_type:
+        query = query.filter(Property.property_type == filters.property_type)
+
+    # --------------------
+    # Équipements (booléens)
+    # --------------------
     if filters.has_garden is not None:
         query = query.filter(Property.has_garden == filters.has_garden)
-
-    if filters.has_balcony is not None:
-        query = query.filter(Property.has_balcony == filters.has_balcony)
 
     if filters.has_terrace is not None:
         query = query.filter(Property.has_terrace == filters.has_terrace)
 
-    if filters.has_elevator is not None:
-        query = query.filter(Property.has_elevator == filters.has_elevator)
+    if filters.has_balcony is not None:
+        query = query.filter(Property.has_balcony == filters.has_balcony)
+
+    if filters.has_parking is not None:
+        query = query.filter(Property.has_parking == filters.has_parking)
 
     if filters.has_cave is not None:
         query = query.filter(Property.has_cave == filters.has_cave)
 
-    if filters.property_type:
-        query = query.filter(Property.property_type == filters.property_type)
+    if filters.has_elevator is not None:
+        query = query.filter(Property.has_elevator == filters.has_elevator)
 
-    if filters.surface_min:
-        query = query.filter(Property.surface_area >= filters.surface_min)
+    if filters.has_pool is not None:
+        query = query.filter(Property.has_pool == filters.has_pool)
 
-    if filters.bedrooms_min:
-        query = query.filter(Property.bedrooms >= filters.bedrooms_min)
+    if filters.is_quiet is not None:
+        query = query.filter(Property.is_quiet == filters.is_quiet)
 
+    if filters.is_furnished is not None:
+        query = query.filter(Property.is_furnished == filters.is_furnished)
+
+    # --------------------
+    # Parking / étage
+    # --------------------
+    if filters.parking_spaces_min is not None:
+        query = query.filter(Property.parking_spaces >= filters.parking_spaces_min)
+
+    if filters.floor_number_min is not None:
+        query = query.filter(Property.floor_number >= filters.floor_number_min)
+
+    # --------------------
+    # Année / disponibilité
+    # --------------------
+    if filters.construction_year_min is not None:
+        query = query.filter(
+            Property.construction_year >= filters.construction_year_min
+        )
+
+    if filters.available_from is not None:
+        query = query.filter(Property.available_from >= filters.available_from)
+
+    # --------------------
+    # Énergie
+    # --------------------
+    if filters.energy_rating:
+        query = query.filter(Property.energy_rating == filters.energy_rating)
+
+    if filters.heating_type:
+        query = query.filter(Property.heating_type == filters.heating_type)
+
+    # --------------------
+    # Métadonnées
+    # --------------------
+    if filters.is_active is not None:
+        query = query.filter(Property.is_active == filters.is_active)
+
+    # --------------------
+    # Total avant pagination
+    # --------------------
     total = query.count()
 
-    sort_column = getattr(Property, filters.sort_by)
+    # --------------------
+    # Tri
+    # --------------------
+    sort_column = getattr(Property, filters.sort_by, Property.created_at)
 
     if filters.sort_order == "asc":
         query = query.order_by(sort_column.asc())
     else:
         query = query.order_by(sort_column.desc())
 
+    # --------------------
+    # Pagination
+    # --------------------
     skip = (filters.page - 1) * filters.page_size
-
     query = query.offset(skip).limit(filters.page_size)
 
     properties = query.all()
-
     total_pages = math.ceil(total / filters.page_size)
 
     items = [
@@ -151,29 +257,145 @@ def create_properties(
 def count_properties(db: Session, filters: schemas.PropertyFilterParams) -> int:
     query = db.query(Property)
 
+    # --------------------
+    # Localisation
+    # --------------------
     if filters.city:
         query = query.filter(Property.city == filters.city)
+
     if filters.postal_code:
         query = query.filter(Property.postal_code == filters.postal_code)
+
+    if filters.district:
+        query = query.filter(Property.district == filters.district)
+
+    if filters.neighborhood:
+        query = query.filter(Property.neighborhood == filters.neighborhood)
+
+    # --------------------
+    # Transaction
+    # --------------------
+    if filters.transaction_type:
+        query = query.filter(Property.transaction_type == filters.transaction_type)
+
+    # --------------------
+    # Prix (vente)
+    # --------------------
     if filters.price_min is not None:
         query = query.filter(Property.price >= filters.price_min)
+
     if filters.price_max is not None:
         query = query.filter(Property.price <= filters.price_max)
-    if filters.rooms_min is not None:
-        query = query.filter(Property.rooms >= filters.rooms_min)
+
+    if filters.price_per_sqm_min is not None:
+        query = query.filter(Property.price_per_sqm >= filters.price_per_sqm_min)
+
+    if filters.price_per_sqm_max is not None:
+        query = query.filter(Property.price_per_sqm <= filters.price_per_sqm_max)
+
+    # --------------------
+    # Prix (location)
+    # --------------------
+    if filters.rent_price_min is not None:
+        query = query.filter(Property.rent_price_monthly >= filters.rent_price_min)
+
+    if filters.rent_price_max is not None:
+        query = query.filter(Property.rent_price_monthly <= filters.rent_price_max)
+
+    # --------------------
+    # Surfaces & pièces
+    # --------------------
     if filters.surface_min is not None:
         query = query.filter(Property.surface_area >= filters.surface_min)
+
+    if filters.surface_max is not None:
+        query = query.filter(Property.surface_area <= filters.surface_max)
+
+    if filters.rooms_min is not None:
+        query = query.filter(Property.rooms >= filters.rooms_min)
+
+    if filters.bedrooms_min is not None:
+        query = query.filter(Property.bedrooms >= filters.bedrooms_min)
+
+    if filters.bathrooms_min is not None:
+        query = query.filter(Property.bathrooms >= filters.bathrooms_min)
+
+    if filters.toilets_min is not None:
+        query = query.filter(Property.toilets >= filters.toilets_min)
+
+    if filters.floors_min is not None:
+        query = query.filter(Property.floors >= filters.floors_min)
+
+    # --------------------
+    # Type de bien
+    # --------------------
     if filters.property_type:
         query = query.filter(Property.property_type == filters.property_type)
 
-    if filters.has_parking is not None:
-        query = query.filter(Property.has_parking == filters.has_parking)
+    # --------------------
+    # Équipements
+    # --------------------
     if filters.has_garden is not None:
         query = query.filter(Property.has_garden == filters.has_garden)
+
+    if filters.has_terrace is not None:
+        query = query.filter(Property.has_terrace == filters.has_terrace)
+
     if filters.has_balcony is not None:
         query = query.filter(Property.has_balcony == filters.has_balcony)
+
+    if filters.has_parking is not None:
+        query = query.filter(Property.has_parking == filters.has_parking)
+
+    if filters.has_cave is not None:
+        query = query.filter(Property.has_cave == filters.has_cave)
+
     if filters.has_elevator is not None:
         query = query.filter(Property.has_elevator == filters.has_elevator)
+
+    if filters.has_pool is not None:
+        query = query.filter(Property.has_pool == filters.has_pool)
+
+    if filters.is_quiet is not None:
+        query = query.filter(Property.is_quiet == filters.is_quiet)
+
+    if filters.is_furnished is not None:
+        query = query.filter(Property.is_furnished == filters.is_furnished)
+
+    # --------------------
+    # Parking / étage
+    # --------------------
+    if filters.parking_spaces_min is not None:
+        query = query.filter(Property.parking_spaces >= filters.parking_spaces_min)
+
+    if filters.floor_number_min is not None:
+        query = query.filter(Property.floor_number >= filters.floor_number_min)
+
+    # --------------------
+    # Année / disponibilité
+    # --------------------
+    if filters.construction_year_min is not None:
+        query = query.filter(
+            Property.construction_year >= filters.construction_year_min
+        )
+
+    if filters.available_from is not None:
+        query = query.filter(Property.available_from >= filters.available_from)
+
+    # --------------------
+    # Énergie
+    # --------------------
+    if filters.energy_rating:
+        query = query.filter(Property.energy_rating == filters.energy_rating)
+
+    if filters.heating_type:
+        query = query.filter(Property.heating_type == filters.heating_type)
+
+    # --------------------
+    # Métadonnées
+    # --------------------
+    if filters.is_active is not None:
+        query = query.filter(Property.is_active == filters.is_active)
 
     return query.count()
 
