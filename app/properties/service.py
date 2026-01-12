@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_, or_
 from app.entities.properties import Property
 from app.entities.agent import Agent
@@ -12,7 +12,8 @@ from uuid import UUID
 def search_properties(
     db: Session, filters: schemas.PropertyFilterParams
 ) -> schemas.PaginatedPropertiesResponse:
-    query = db.query(Property)
+    # query = db.query(Property)
+    query = db.query(Property).options(joinedload(Property.photos))
 
     # --------------------
     # Localisation
@@ -176,9 +177,19 @@ def search_properties(
     properties = query.all()
     total_pages = math.ceil(total / filters.page_size)
 
-    items = [
-        schemas.PropertySummaryResponse.model_validate(prop) for prop in properties
-    ]
+    items = []
+    for prop in properties:
+        primary_photo = next((photo for photo in prop.photos if photo.is_primary), None)
+
+        if not primary_photo and prop.photos:
+            primary_photo = prop.photos[0]
+
+        prop_dict = {
+            **{k: v for k, v in prop.__dict__.items() if not k.startswith("_")},
+            "thumbnail_url": primary_photo.url_medium if primary_photo else None,
+        }
+
+        items.append(schemas.PropertySummaryResponse.model_validate(prop_dict))
 
     return schemas.PaginatedPropertiesResponse(
         items=items,
