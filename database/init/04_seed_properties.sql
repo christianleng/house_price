@@ -12,7 +12,7 @@ INSERT INTO properties (
     has_alarm, has_intercom, has_digicode, has_caretaker,
     condition, orientation, is_furnished, is_quiet, has_view,
     heating_type, energy_rating, ges_rating, construction_year,
-    available_from, virtual_tour_url, is_active
+    available_from, virtual_tour_url, photos_count, is_active, views_count
 ) VALUES
 (
     '780b81ae-3ef4-4b4f-8ac0-092b3ca4c11b', '1937c11c-0796-40b9-a231-ab24332e23a1', 'PAR-75011-001',
@@ -25,7 +25,7 @@ INSERT INTO properties (
     FALSE, TRUE, TRUE, FALSE,
     'good', 'south_east', FALSE, FALSE, FALSE,
     'collective', 'D', 'E', 1925,
-    '2026-02-01', NULL, TRUE
+    '2026-02-01', NULL, 3, TRUE, 0  -- ✅ 3 photos
 ),
 (
     'd53e4ef6-5bf8-428a-9aa4-9d631b047f99', '18cb5033-07aa-431c-9c9d-2532fce5e258', 'PAR-75016-001',
@@ -38,7 +38,7 @@ INSERT INTO properties (
     TRUE, TRUE, TRUE, TRUE,
     'excellent', 'south', FALSE, TRUE, TRUE,
     'collective', 'C', 'C', 1890,
-    '2026-03-01', 'https://my360tour.com/passy-luxury', TRUE
+    '2026-03-01', 'https://my360tour.com/passy-luxury', 4, TRUE, 0  -- ✅ 4 photos
 ),
 (
     '6fb71fbf-b34d-4613-8d8e-7f96d58cb084', '1937c11c-0796-40b9-a231-ab24332e23a1', 'PAR-75018-001',
@@ -51,7 +51,7 @@ INSERT INTO properties (
     FALSE, TRUE, TRUE, FALSE,
     'excellent', 'west', FALSE, FALSE, FALSE,
     'electric', 'E', 'D', 1920,
-    '2026-01-15', NULL, TRUE
+    '2026-01-15', NULL, 2, TRUE, 0  -- ✅ 2 photos
 ),
 (
     '718d7bb5-560a-406a-87ca-694ed54f5107', '1937c11c-0796-40b9-a231-ab24332e23a1', 'MON-93100-001',
@@ -64,7 +64,7 @@ INSERT INTO properties (
     TRUE, FALSE, TRUE, FALSE,
     'good', 'south_west', FALSE, TRUE, TRUE,
     'individual', 'D', 'D', 1930,
-    '2026-06-01', 'https://my360tour.com/loft-montreuil', TRUE
+    '2026-06-01', 'https://my360tour.com/loft-montreuil', 2, TRUE, 0  -- ✅ 2 photos
 ),
 (
     'a326dae9-b9f9-428b-9e79-2acbcc078c82', '18cb5033-07aa-431c-9c9d-2532fce5e258', 'PAR-75016-LOC-001',
@@ -77,7 +77,7 @@ INSERT INTO properties (
     TRUE, TRUE, TRUE, TRUE,
     'excellent', 'west', TRUE, TRUE, TRUE,
     'collective', 'C', 'C', 1970,
-    '2026-01-10', NULL, TRUE
+    '2026-01-10', NULL, 1, TRUE, 0  -- ✅ 1 photo
 ),
 (
     '2015fc04-70e8-41f8-bd56-19970d464adf', '1937c11c-0796-40b9-a231-ab24332e23a1', 'PAR-75005-LOC-001',
@@ -90,7 +90,7 @@ INSERT INTO properties (
     FALSE, TRUE, TRUE, FALSE,
     'good', 'north', TRUE, FALSE, FALSE,
     'electric', 'E', 'D', 1960,
-    '2026-01-01', NULL, TRUE
+    '2026-01-01', NULL, 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     'bfcf9b00-007d-4203-942b-007353ac0855', '9c6645fa-6a35-46f7-8b6a-b5883862ae49', 'LYO-69002-001',
@@ -103,7 +103,7 @@ INSERT INTO properties (
     FALSE, TRUE, TRUE, FALSE,
     'to_refresh', 'east', FALSE, FALSE, TRUE,
     'individual', 'E', 'E', 1885,
-    '2026-04-01', NULL, TRUE
+    '2026-04-01', NULL, 2, TRUE, 0  -- ✅ 2 photos
 ),
 (
     '4596e983-6f89-4c47-9717-20d1deeb6022', '9c6645fa-6a35-46f7-8b6a-b5883862ae49', 'LYO-69004-001',
@@ -116,7 +116,7 @@ INSERT INTO properties (
     TRUE, TRUE, TRUE, FALSE,
     'good', 'south', FALSE, TRUE, TRUE,
     'gas', 'D', 'D', 1900,
-    '2026-05-01', 'https://my360tour.com/croix-rousse-house', TRUE
+    '2026-05-01', 'https://my360tour.com/croix-rousse-house', 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     '0c2e7932-ea4e-4336-a337-01b51dc73417', '9c6645fa-6a35-46f7-8b6a-b5883862ae49', 'LYO-69003-LOC-001',
@@ -129,7 +129,7 @@ INSERT INTO properties (
     FALSE, TRUE, TRUE, FALSE,
     'excellent', 'south_west', FALSE, FALSE, FALSE,
     'collective', 'B', 'B', 2018,
-    '2026-02-01', NULL, TRUE
+    '2026-02-01', NULL, 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     '4cd19b24-3e11-439a-a8ad-d5af0b2c4b05', '22479295-f7bd-4d9a-bc9e-3d660d18a1f8', 'MRS-13001-001',
@@ -142,7 +142,7 @@ INSERT INTO properties (
     TRUE, TRUE, TRUE, TRUE,
     'excellent', 'south', FALSE, FALSE, TRUE,
     'individual', 'B', 'A', 2015,
-    '2026-03-15', 'https://my360tour.com/vieux-port-panorama', TRUE
+    '2026-03-15', 'https://my360tour.com/vieux-port-panorama', 2, TRUE, 0  -- ✅ 2 photos
 ),
 (
     'ea771c5b-d25f-4518-91e5-8e2a9f7e7a01', 'd15aaa6d-be7d-4f64-b677-f07ca75f1346', 'BDX-33000-001',
@@ -155,7 +155,7 @@ INSERT INTO properties (
     TRUE, FALSE, FALSE, FALSE,
     'excellent', 'south_west', FALSE, TRUE, FALSE,
     'gas', 'C', 'C', 1920,
-    '2026-04-01', NULL, TRUE
+    '2026-04-01', NULL, 2, TRUE, 0  -- ✅ 2 photos
 ),
 (
     'c46dd03f-1c46-4558-a5e8-cc21ba492e1f', 'd15aaa6d-be7d-4f64-b677-f07ca75f1346', 'BDX-33000-LOC-001',
@@ -168,7 +168,7 @@ INSERT INTO properties (
     FALSE, TRUE, TRUE, FALSE,
     'good', 'east', TRUE, FALSE, FALSE,
     'electric', 'D', 'D', 1975,
-    '2026-01-01', NULL, TRUE
+    '2026-01-01', NULL, 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     'b9a78f27-9d4d-48b9-b21e-b96f6c62e301', '4d5b94d4-2acf-4e8a-af7c-64d26f7d9a9c', 'NIC-06000-001',
@@ -181,7 +181,7 @@ INSERT INTO properties (
     TRUE, TRUE, TRUE, TRUE,
     'excellent', 'south', FALSE, FALSE, TRUE,
     'individual', 'B', 'B', 2010,
-    '2026-06-01', 'https://my360tour.com/nice-promenade', TRUE
+    '2026-06-01', 'https://my360tour.com/nice-promenade', 2, TRUE, 0  -- ✅ 2 photos
 ),
 (
     '7f42616f-2923-44c3-9950-37e3bbbc15af', '4d5b94d4-2acf-4e8a-af7c-64d26f7d9a9c', 'NIC-06000-LOC-001',
@@ -194,7 +194,7 @@ INSERT INTO properties (
     FALSE, TRUE, TRUE, FALSE,
     'good', 'north', FALSE, FALSE, FALSE,
     'electric', 'E', 'E', 1850,
-    '2026-02-15', NULL, TRUE
+    '2026-02-15', NULL, 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     '53fa9092-2e73-4d07-abcc-1db5da1c257b', '6deb05b1-f453-4667-8fe0-45372c20bea5', 'VIT-94400-001',
@@ -207,7 +207,7 @@ INSERT INTO properties (
     FALSE, FALSE, FALSE, FALSE,
     'good', 'south', FALSE, TRUE, FALSE,
     'gas', 'D', 'D', 1965,
-    '2026-03-01', NULL, TRUE
+    '2026-03-01', NULL, 2, TRUE, 0  -- ✅ 2 photos
 ),
 (
     'a7d4e12c-5b8a-4c2d-9f1e-3b2a1c0d9e8f', '1937c11c-0796-40b9-a231-ab24332e23a1', 'PAR-75003-001',
@@ -220,7 +220,7 @@ INSERT INTO properties (
     TRUE, TRUE, TRUE, FALSE,
     'excellent', 'south_west', FALSE, TRUE, FALSE,
     'electric', 'C', 'C', 1900,
-    '2026-04-15', NULL, TRUE
+    '2026-04-15', NULL, 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     'b2c5d3e4-6f7a-4b8c-9d0e-1f2a3b4c5d6e', '18cb5033-07aa-431c-9c9d-2532fce5e258', 'PAR-75008-001',
@@ -233,7 +233,7 @@ INSERT INTO properties (
     TRUE, TRUE, TRUE, TRUE,
     'excellent', 'south', FALSE, FALSE, TRUE,
     'collective', 'D', 'D', 1880,
-    '2026-05-01', 'https://my360tour.com/montaigne-luxury', TRUE
+    '2026-05-01', 'https://my360tour.com/montaigne-luxury', 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     'c9e8d7f6-5a4b-3c2d-1e0f-9a8b7c6d5e4f', '1937c11c-0796-40b9-a231-ab24332e23a1', 'PAR-75014-LOC-001',
@@ -246,7 +246,7 @@ INSERT INTO properties (
     FALSE, TRUE, TRUE, TRUE,
     'good', 'west', TRUE, TRUE, TRUE,
     'individual', 'D', 'C', 1955,
-    '2026-02-01', NULL, TRUE
+    '2026-02-01', NULL, 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     'd1e2f3a4-b5c6-7d8e-9f0a-1b2c3d4e5f6a', '18cb5033-07aa-431c-9c9d-2532fce5e258', 'PAR-75017-001',
@@ -259,7 +259,7 @@ INSERT INTO properties (
     FALSE, TRUE, TRUE, FALSE,
     'to_refresh', 'east', FALSE, TRUE, FALSE,
     'gas', 'E', 'E', 1910,
-    '2026-03-20', NULL, TRUE
+    '2026-03-20', NULL, 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     'e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f9a0b', '1937c11c-0796-40b9-a231-ab24332e23a1', 'PAR-75020-001',
@@ -272,7 +272,7 @@ INSERT INTO properties (
     TRUE, TRUE, TRUE, FALSE,
     'excellent', 'south_east', FALSE, TRUE, TRUE,
     'collective', 'C', 'B', 1995,
-    '2026-06-15', 'https://my360tour.com/gambetta-rooftop', TRUE
+    '2026-06-15', 'https://my360tour.com/gambetta-rooftop', 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     'f1a2b3c4-d5e6-4a7b-8c9d-0e1f2a3b4c5d', '1937c11c-0796-40b9-a231-ab24332e23a1', 'PAR-75001-001',
@@ -285,7 +285,7 @@ INSERT INTO properties (
     TRUE, TRUE, TRUE, TRUE,
     'excellent', 'south', FALSE, TRUE, TRUE,
     'individual', 'C', 'C', 1850,
-    '2026-04-01', 'https://my360tour.com/palais-royal', TRUE
+    '2026-04-01', 'https://my360tour.com/palais-royal', 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     'a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5e', '18cb5033-07aa-431c-9c9d-2532fce5e258', 'PAR-75006-001',
@@ -298,7 +298,7 @@ INSERT INTO properties (
     FALSE, TRUE, TRUE, FALSE,
     'excellent', 'north_east', FALSE, TRUE, FALSE,
     'electric', 'E', 'D', 1820,
-    '2026-02-15', NULL, TRUE
+    '2026-02-15', NULL, 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     'b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6f', '1937c11c-0796-40b9-a231-ab24332e23a1', 'PAR-75009-LOC-001',
@@ -311,7 +311,7 @@ INSERT INTO properties (
     TRUE, TRUE, TRUE, FALSE,
     'excellent', 'west', TRUE, FALSE, TRUE,
     'individual', 'D', 'C', 1895,
-    '2026-01-20', NULL, TRUE
+    '2026-01-20', NULL, 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     'c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f', '18cb5033-07aa-431c-9c9d-2532fce5e258', 'PAR-75015-001',
@@ -324,7 +324,7 @@ INSERT INTO properties (
     TRUE, TRUE, TRUE, TRUE,
     'good', 'south_west', FALSE, FALSE, FALSE,
     'collective', 'D', 'D', 1975,
-    '2026-05-10', NULL, TRUE
+    '2026-05-10', NULL, 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a', '1937c11c-0796-40b9-a231-ab24332e23a1', 'PAR-75012-001',
@@ -337,7 +337,7 @@ INSERT INTO properties (
     TRUE, FALSE, TRUE, FALSE,
     'excellent', 'south', FALSE, TRUE, FALSE,
     'individual', 'C', 'B', 1920,
-    '2026-03-01', 'https://my360tour.com/aligre-loft', TRUE
+    '2026-03-01', 'https://my360tour.com/aligre-loft', 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     'e8d2c1b4-a5f6-4d9e-8c7b-1a2b3c4d5e6f', '1937c11c-0796-40b9-a231-ab24332e23a1', 'PAR-75004-001',
@@ -350,7 +350,7 @@ INSERT INTO properties (
     TRUE, TRUE, TRUE, FALSE,
     'excellent', 'south', FALSE, TRUE, TRUE,
     'individual', 'D', 'D', 1650,
-    '2026-04-10', NULL, TRUE
+    '2026-04-10', NULL, 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     'f9a3b2c1-d4e5-4a6b-7c8d-9e0f1a2b3c4d', '18cb5033-07aa-431c-9c9d-2532fce5e258', 'PAR-75007-001',
@@ -363,7 +363,7 @@ INSERT INTO properties (
     TRUE, TRUE, TRUE, TRUE,
     'excellent', 'west', FALSE, FALSE, TRUE,
     'collective', 'D', 'C', 1910,
-    '2026-05-15', 'https://my360tour.com/bourdonnais-view', TRUE
+    '2026-05-15', 'https://my360tour.com/bourdonnais-view', 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     'a5b4c3d2-e1f0-4a9b-8c7d-6e5f4a3b2c1d', '1937c11c-0796-40b9-a231-ab24332e23a1', 'PAR-75010-LOC-001',
@@ -376,7 +376,7 @@ INSERT INTO properties (
     TRUE, FALSE, TRUE, FALSE,
     'excellent', 'east', TRUE, TRUE, TRUE,
     'individual', 'C', 'C', 1935,
-    '2026-02-01', NULL, TRUE
+    '2026-02-01', NULL, 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     'b7c8d9e0-f1a2-4b3c-4d5e-6f7a8b9c0d1e', '18cb5033-07aa-431c-9c9d-2532fce5e258', 'PAR-75013-001',
@@ -389,7 +389,7 @@ INSERT INTO properties (
     FALSE, TRUE, TRUE, FALSE,
     'good', 'south_east', FALSE, TRUE, FALSE,
     'collective', 'B', 'B', 2012,
-    '2026-03-25', NULL, TRUE
+    '2026-03-25', NULL, 0, TRUE, 0  -- ✅ 0 photo
 ),
 (
     'c1d2e3f4-a5b6-4c7d-8e9f-0a1b2c3d4e5f', '1937c11c-0796-40b9-a231-ab24332e23a1', 'PAR-75019-001',
@@ -402,7 +402,18 @@ INSERT INTO properties (
     FALSE, TRUE, TRUE, TRUE,
     'excellent', 'west', FALSE, FALSE, TRUE,
     'individual', 'D', 'C', 1965,
-    '2026-01-30', NULL, TRUE
+    '2026-01-30', NULL, 0, TRUE, 0  -- ✅ 0 photo
 );
 
 SELECT '✅ === Properties seeded successfully! Total: ' || COUNT(*) FROM properties;
+
+-- Vérification de la cohérence photos_count
+SELECT 
+    'Verification:' as status,
+    COUNT(*) as properties_with_mismatch
+FROM properties p
+WHERE p.photos_count != (
+    SELECT COUNT(*) 
+    FROM photos ph 
+    WHERE ph.property_id = p.id
+);

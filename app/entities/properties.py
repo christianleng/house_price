@@ -35,11 +35,10 @@ class Property(Base):
     longitude = Column(Float, nullable=True)
 
     # Prix
-    price = Column(Integer, nullable=False)  # Prix en euros
-    price_per_sqm = Column(Integer, nullable=False)  # Prix au m²
+    price = Column(Integer, nullable=False)
+    price_per_sqm = Column(Integer, nullable=False)
 
     # Caractéristiques principales
-    # property_type = Column(SQLEnum(PropertyType), nullable=False)
     property_type = Column(
         SQLEnum(
             PropertyType, values_callable=lambda enum_cls: [e.value for e in enum_cls]
@@ -53,7 +52,7 @@ class Property(Base):
     toilets = Column(Integer, nullable=True)
     floors = Column(Integer, nullable=True)
 
-    # Équipements (booléens pour queries ML rapides)
+    # Équipements
     has_garden = Column(Boolean, default=False)
     has_terrace = Column(Boolean, default=False)
     has_balcony = Column(Boolean, default=False)
@@ -70,8 +69,6 @@ class Property(Base):
     is_furnished = Column(Boolean, default=False)
 
     # Énergie
-    # heating_type = Column(SQLEnum(HeatingType), nullable=True)
-    # energy_rating = Column(SQLEnum(EnergyRating), nullable=True)
     heating_type = Column(
         SQLEnum(
             HeatingType, values_callable=lambda enum_cls: [e.value for e in enum_cls]
@@ -88,6 +85,8 @@ class Property(Base):
     # Texte
     description = Column(String, nullable=False)
 
+    photos_count = Column(Integer, nullable=False, default=0)
+
     # Métadonnées
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(
@@ -96,8 +95,9 @@ class Property(Base):
         onupdate=lambda: datetime.now(timezone.utc),
     )
     is_active = Column(Boolean, default=True)
+    views_count = Column(Integer, nullable=False, default=0)
 
-    transaction_type = Column(SQLEnum(TransactionType), nullable=False, index=True)
+    # Transaction
     transaction_type = Column(
         SQLEnum(
             TransactionType,
@@ -107,10 +107,11 @@ class Property(Base):
         index=True,
     )
 
-    rent_price_monthly = Column(Integer, nullable=True)  # Prix mensuel si location
-    charges_included = Column(Boolean, default=False)  # Charges comprises
-    deposit = Column(Integer, nullable=True)  # Depot de garantie
+    rent_price_monthly = Column(Integer, nullable=True)
+    charges_included = Column(Boolean, default=False)
+    deposit = Column(Integer, nullable=True)
 
+    # Relationships
     agent = relationship("Agent", back_populates="properties")
     photos = relationship("Photo", back_populates="property")
     features = relationship(

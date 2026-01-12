@@ -190,6 +190,9 @@ class PropertySummaryResponse(BaseModel):
     energy_rating: EnergyRating | None
     heating_type: HeatingType | None
 
+    photos_count: int
+    thumbnail_url: str | None
+
     # Métadonnées
     construction_year: int | None
     available_from: datetime | None

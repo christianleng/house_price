@@ -148,6 +148,9 @@ CREATE TABLE IF NOT EXISTS properties (
     
     -- Visite virtuelle
     virtual_tour_url VARCHAR(500),
+
+    photos_count INTEGER NOT NULL DEFAULT 0,
+    views_count INTEGER NOT NULL DEFAULT 0,
     
     -- Métadonnées
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,

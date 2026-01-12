@@ -324,45 +324,56 @@ def get_photo_by_id(photo_id: UUID, db: Session) -> schemas.PhotoResponse:
     return schemas.photo_to_response(photo)
 
 
-def update_photo(
-    photo_id: UUID, update_data: schemas.PhotoUpdate, agent_id: UUID, db: Session
-) -> schemas.PhotoResponse:
-    """
-    Met à jour les métadonnées d'une photo.
-    """
-    photo = db.query(Photo).filter(Photo.id == photo_id).first()
+def upload_photos(
+    property_id: UUID, files: list[UploadFile], agent_id: UUID, db: Session
+) -> list[schemas.PhotoResponse]:
+    property = db.query(Property).filter(Property.id == property_id).first()
 
-    if not photo:
+    if not property:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Property not found"
         )
 
-    # Vérifier que l'agent possède la property
-    prop = db.query(Property).filter(Property.id == photo.property_id).first()
-
-    if prop.agent_id != agent_id:
+    if property.agent_id != agent_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can only modify photos of your own properties",
+            detail="You can only add photos to your own properties",
         )
 
-    # Si on définit cette photo comme primary, retirer le flag des autres
-    if update_data.is_primary:
-        db.query(Photo).filter(
-            Photo.property_id == photo.property_id, Photo.id != photo_id
-        ).update({"is_primary": False})
+    uploaded_photos = []
 
-    # Appliquer les modifications
-    update_dict = update_data.model_dump(exclude_unset=True)
-    for field, value in update_dict.items():
-        setattr(photo, field, value)
+    for file in files:
+        ImageProcessor.validate_image(file)
+
+        image_data = file.file.read()
+        processed = ImageProcessor.process_image(image_data, file.filename)
+
+        photo = Photo(
+            property_id=property_id,
+            url_original=processed["url_original"],
+            url_thumbnail=processed.get("url_thumbnail"),
+            url_small=processed.get("url_small"),
+            url_medium=processed.get("url_medium"),
+            url_large=processed.get("url_large"),
+            original_filename=file.filename,
+            original_width=processed.get("original_width"),
+            original_height=processed.get("original_height"),
+            size_bytes=len(image_data),
+            content_type=file.content_type,
+            is_primary=False,
+            display_order=property.photos_count,
+        )
+
+        db.add(photo)
+        uploaded_photos.append(photo)
+
+    property.photos_count += len(files)
 
     db.commit()
-    db.refresh(photo)
 
-    logging.info(f"✅ Photo updated: {photo_id}")
+    logging.info(f"✅ Uploaded {len(files)} photos for property {property_id}")
 
-    return schemas.photo_to_response(photo)
+    return [schemas.photo_to_response(p) for p in uploaded_photos]
 
 
 def delete_photo(photo_id: UUID, agent_id: UUID, db: Session) -> None:
@@ -378,28 +389,13 @@ def delete_photo(photo_id: UUID, agent_id: UUID, db: Session) -> None:
     if prop.agent_id != agent_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can only delete photos of your own properties",
+            detail="You can only delete photos from your own properties",
         )
 
-    was_primary = photo.is_primary
-    property_id = photo.property_id
-
-    ImageProcessor.delete_image_files(photo)
+    prop.photos_count -= 1
 
     db.delete(photo)
     db.commit()
-
-    if was_primary:
-        next_photo = (
-            db.query(Photo)
-            .filter(Photo.property_id == property_id)
-            .order_by(Photo.display_order)
-            .first()
-        )
-
-        if next_photo:
-            next_photo.is_primary = True
-            db.commit()
 
     logging.info(f"✅ Photo deleted: {photo_id}")
 
