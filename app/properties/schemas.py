@@ -392,3 +392,28 @@ class PropertyStatsResponse(BaseModel):
     days_online: int
     average_price_in_city: float | None
     price_comparison: str
+
+
+class CitiesPropertiesRequest(BaseModel):
+    cities: list[str] = Field(
+        ..., min_items=1, max_items=10, description="Liste des villes"
+    )
+    transaction_type: TransactionType
+    page_size: int = Field(
+        default=10, ge=1, le=50, description="Nombre de propriétés par ville"
+    )
+    sort_by: str = Field(default="created_at")
+    sort_order: str = Field(default="desc")
+
+
+class CityPropertiesResponse(BaseModel):
+    city: str
+    properties: list[PropertySummaryResponse]
+    total: int
+
+
+class CitiesPropertiesResponse(BaseModel):
+    data: dict[str, CityPropertiesResponse]
+    transaction_type: TransactionType
+
+    model_config = ConfigDict(from_attributes=True)

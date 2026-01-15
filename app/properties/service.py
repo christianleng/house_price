@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_, or_
+from app.entities.enum import TransactionType
 from app.entities.properties import Property
 from app.entities.agent import Agent
 from app.properties import schemas
@@ -544,3 +545,35 @@ def delete_property(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update property",
         )
+
+
+def get_properties_by_cities(
+    cities: list[str],
+    db: Session,
+    transaction_type: TransactionType,
+    page_size: int = 10,
+    sort_by: str = "created_at",
+    sort_order: str = "desc",
+) -> dict[str, schemas.CityPropertiesResponse]:
+    results = {}
+
+    for city in cities:
+        filters = schemas.PropertyFilterParams(
+            city=city,
+            transaction_type=transaction_type,
+            page=1,
+            page_size=page_size,
+            sort_by=sort_by,
+            sort_order=sort_order,
+            is_active=True,
+        )
+
+        paginated_response = search_properties(db, filters)
+
+        results[city] = schemas.CityPropertiesResponse(
+            city=city,
+            properties=paginated_response.items,
+            total=paginated_response.total,
+        )
+
+    return results
