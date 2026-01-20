@@ -54,5 +54,5 @@ def get_current_user(
     return user
 
 
-CurrentUser = Annotated[User, Depends(get_current_token_data)]
-CurrentTokenData = Annotated[TokenData, Depends(get_current_user)]
+CurrentUser = Annotated[User, Depends(get_current_user)]
+CurrentTokenData = Annotated[TokenData, Depends(get_current_token_data)]
