@@ -32,8 +32,11 @@ class CreatePropertyRequest(BaseModel):
     latitude: float = Field(..., ge=-90, le=90, description="Latitude GPS")
     longitude: float = Field(..., ge=-180, le=180, description="Longitude GPS")
 
-    price: int = Field(..., ge=1, le=10_000_000, description="Prix en euros")
-    price_per_sqm: int = Field(..., ge=1, le=100_000, description="Prix au m² en euros")
+    price: int | None = Field(None, ge=1, le=10_000_000)
+    price_per_sqm: int | None = Field(None, ge=1, le=100_000)
+
+    rent_price_monthly: int | None = Field(None, ge=1)
+    transaction_type: TransactionType = Field(...)
 
     property_type: PropertyType = Field(..., description="Type de bien")
     surface_area: int = Field(..., ge=1, description="Surface habitable en m²")
@@ -96,8 +99,15 @@ class PropertyResponse(BaseModel):
     latitude: float
     longitude: float
 
-    price: int
-    price_per_sqm: int
+    # ? None en cas de location
+    price: Optional[int] = None
+    price_per_sqm: Optional[int] = None
+
+    # ? location
+    rent_price_monthly: Optional[int] = None
+    deposit: Optional[int] = None
+    charges_included: Optional[bool] = None
+    transaction_type: TransactionType
 
     property_type: PropertyType
     surface_area: int
@@ -139,32 +149,66 @@ class PropertyWithAgentResponse(PropertyResponse):
 
 
 class PropertySummaryResponse(BaseModel):
+    # Identité
     id: UUID
+    agent_id: UUID
     reference: str
+
+    # Localisation
     title: str
+    address: str | None
+    neighborhood: str | None
     city: str
+    district: str | None
     postal_code: str
-    price: Optional[int]
-    price_per_sqm: Optional[int]
-    property_type: str
+    latitude: float | None
+    longitude: float | None
+
+    # Transaction
+    transaction_type: TransactionType
+
+    # Prix
+    price: int | None
+    price_per_sqm: int | None
+    rent_price_monthly: int | None = None
+    charges_included: bool | None = None
+    deposit: int | None = None
+
+    # Caractéristiques
+    property_type: PropertyType
     surface_area: int
     rooms: int
     bedrooms: int
-    has_parking: bool
-    has_garden: bool
-    has_balcony: bool
-    has_terrace: bool
-    has_elevator: bool
-    has_cave: bool
-    energy_rating: Optional[str]
-    created_at: datetime
-    thumbnail_url: Optional[str] = None
+    bathrooms: int | None
+    toilets: int | None
+    floors: int | None
+    floor_number: int | None
 
-    # rent
-    # rent_price_monthly: int
-    # rent_charges: int
-    # charges_included: bool
-    # deposit: int
+    # Équipements
+    has_garden: bool
+    has_terrace: bool
+    has_balcony: bool
+    has_parking: bool
+    parking_spaces: int | None
+    has_cave: bool
+    has_elevator: bool
+    has_pool: bool
+    is_quiet: bool
+    is_furnished: bool
+
+    # Énergie
+    energy_rating: EnergyRating | None
+    heating_type: HeatingType | None
+
+    photos_count: int
+    thumbnail_url: str | None
+
+    # Métadonnées
+    construction_year: int | None
+    available_from: datetime | None
+    created_at: datetime
+    updated_at: datetime | None
+    is_active: bool
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -214,19 +258,41 @@ class UpdatePropertyRequest(BaseModel):
 
 
 class PropertyFilterParams(BaseModel):
+    # --------------------
+    # Localisation
+    # --------------------
     city: str | None = None
     postal_code: str | None = None
     district: str | None = None
     neighborhood: str | None = None
 
+    # --------------------
+    # Transaction
+    # --------------------
+    transaction_type: TransactionType | None = None
+
+    # --------------------
+    # Prix (vente)
+    # --------------------
     price_min: int | None = Field(None, ge=0, description="Prix minimum")
     price_max: int | None = Field(None, ge=0, description="Prix maximum")
 
+    price_per_sqm_min: int | None = Field(None, ge=0, description="Prix au m² minimum")
+    price_per_sqm_max: int | None = Field(None, ge=0, description="Prix au m² maximum")
+
+    # --------------------
+    # Prix (location)
+    # --------------------
+    rent_price_min: int | None = Field(None, ge=0, description="Loyer mensuel minimum")
+    rent_price_max: int | None = Field(None, ge=0, description="Loyer mensuel maximum")
+
+    # --------------------
+    # Surfaces & pièces
+    # --------------------
     surface_min: int | None = Field(None, ge=0, description="Surface minimale en m²")
     surface_max: int | None = Field(None, ge=0, description="Surface maximale en m²")
 
     rooms_min: int | None = Field(None, ge=1, description="Nombre minimum de pièces")
-    rooms_max: int | None = Field(None, ge=1, description="Nombre maximum de pièces")
     bedrooms_min: int | None = Field(
         None, ge=0, description="Nombre minimum de chambres"
     )
@@ -238,31 +304,65 @@ class PropertyFilterParams(BaseModel):
     )
     floors_min: int | None = Field(None, ge=0, description="Nombre minimum d'étages")
 
+    # --------------------
+    # Type de bien
+    # --------------------
     property_type: PropertyType | None = None
 
+    # --------------------
+    # Équipements (booléens)
+    # --------------------
     has_garden: bool | None = None
-    has_parking: bool | None = None
-    has_balcony: bool | None = None
     has_terrace: bool | None = None
+    has_balcony: bool | None = None
+    has_parking: bool | None = None
     has_cave: bool | None = None
     has_elevator: bool | None = None
+    has_pool: bool | None = None
+    is_quiet: bool | None = None
     is_furnished: bool | None = None
 
+    # --------------------
+    # Parking / étage
+    # --------------------
+    parking_spaces_min: int | None = Field(
+        None, ge=0, description="Nombre minimum de places de parking"
+    )
+    floor_number_min: int | None = Field(None, ge=0, description="Étage minimum")
+
+    # --------------------
+    # Année / disponibilité
+    # --------------------
+    construction_year_min: int | None = Field(
+        None, ge=1800, le=2100, description="Année de construction minimale"
+    )
+    available_from: datetime | None = Field(None, description="Disponible à partir de")
+
+    # --------------------
+    # Énergie
+    # --------------------
     energy_rating: EnergyRating | None = None
+    heating_type: HeatingType | None = None
 
-    transaction_type: TransactionType | None = None
-    rent_min: int | None = None
-    rent_max: int | None = None
-    is_furnished: bool | None = None
-    available_before: datetime | None = None
+    # --------------------
+    # Métadonnées
+    # --------------------
+    is_active: bool | None = None
 
+    # --------------------
+    # Tri & pagination
+    # --------------------
     sort_by: str = Field(
-        "created_at", description="Champ de tri (created_at, price, surface_area)"
+        "created_at",
+        description="Champ de tri (created_at, price, surface_area, price_per_sqm, rooms)",
     )
     sort_order: str = Field("desc", description="Ordre de tri (asc, desc)")
     page: int = Field(1, ge=1, description="Numéro de page")
     page_size: int = Field(20, ge=1, le=100, description="Nombre de résultats par page")
 
+    # --------------------
+    # Validators
+    # --------------------
     @field_validator("sort_by")
     @classmethod
     def validate_sort_by(cls, v: str) -> str:
@@ -272,15 +372,16 @@ class PropertyFilterParams(BaseModel):
             "surface_area",
             "price_per_sqm",
             "rooms",
+            "bedrooms",
         ]
         if v not in allowed_fields:
-            raise ValueError(f'sort_by must be one of: {", ".join(allowed_fields)}')
+            raise ValueError(f"sort_by must be one of: {', '.join(allowed_fields)}")
         return v
 
     @field_validator("sort_order")
     @classmethod
     def validate_sort_order(cls, v: str) -> str:
-        if v not in ["asc", "desc"]:
+        if v not in ("asc", "desc"):
             raise ValueError('sort_order must be "asc" or "desc"')
         return v
 
@@ -301,3 +402,28 @@ class PropertyStatsResponse(BaseModel):
     days_online: int
     average_price_in_city: float | None
     price_comparison: str
+
+
+class CitiesPropertiesRequest(BaseModel):
+    cities: list[str] = Field(
+        ..., min_items=1, max_items=10, description="Liste des villes"
+    )
+    transaction_type: TransactionType
+    page_size: int = Field(
+        default=10, ge=1, le=50, description="Nombre de propriétés par ville"
+    )
+    sort_by: str = Field(default="created_at")
+    sort_order: str = Field(default="desc")
+
+
+class CityPropertiesResponse(BaseModel):
+    city: str
+    properties: list[PropertySummaryResponse]
+    total: int
+
+
+class CitiesPropertiesResponse(BaseModel):
+    data: dict[str, CityPropertiesResponse]
+    transaction_type: TransactionType
+
+    model_config = ConfigDict(from_attributes=True)

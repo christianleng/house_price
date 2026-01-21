@@ -45,7 +45,7 @@ async def get_photo_by_id(photo_id: UUID, db: DbSession):
     Maximum size: 10MB
     """,
 )
-async def upload_photo(
+async def upload_photos(
     property_id: UUID,
     current_agent: CurrentAgent,
     db: DbSession,
@@ -54,7 +54,7 @@ async def upload_photo(
     caption: str | None = Form(None, description="Photo caption"),
 ):
     meta = schemas.PhotoUploadMeta(is_primary=is_primary, caption=caption)
-    return service.upload_photo(property_id, file, current_agent.id, db, meta)
+    return service.upload_photos(property_id, file, current_agent.id, db, meta)
 
 
 @router.post(

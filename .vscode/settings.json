@@ -1,5 +1,13 @@
 {
-  "cSpell.words": ["dotenv", "gotenv", "ondelete", "onupdate", "sessionmaker"],
+  "cSpell.words": [
+    "dotenv",
+    "favorited",
+    "gotenv",
+    "joinedload",
+    "ondelete",
+    "onupdate",
+    "sessionmaker"
+  ],
   "editor.formatOnSave": true,
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter",
