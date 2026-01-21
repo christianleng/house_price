@@ -32,8 +32,11 @@ class CreatePropertyRequest(BaseModel):
     latitude: float = Field(..., ge=-90, le=90, description="Latitude GPS")
     longitude: float = Field(..., ge=-180, le=180, description="Longitude GPS")
 
-    price: int = Field(..., ge=1, le=10_000_000, description="Prix en euros")
-    price_per_sqm: int = Field(..., ge=1, le=100_000, description="Prix au m² en euros")
+    price: int | None = Field(None, ge=1, le=10_000_000)
+    price_per_sqm: int | None = Field(None, ge=1, le=100_000)
+
+    rent_price_monthly: int | None = Field(None, ge=1)
+    transaction_type: TransactionType = Field(...)
 
     property_type: PropertyType = Field(..., description="Type de bien")
     surface_area: int = Field(..., ge=1, description="Surface habitable en m²")
@@ -96,8 +99,15 @@ class PropertyResponse(BaseModel):
     latitude: float
     longitude: float
 
-    price: int
-    price_per_sqm: int
+    # ? None en cas de location
+    price: Optional[int] = None
+    price_per_sqm: Optional[int] = None
+
+    # ? location
+    rent_price_monthly: Optional[int] = None
+    deposit: Optional[int] = None
+    charges_included: Optional[bool] = None
+    transaction_type: TransactionType
 
     property_type: PropertyType
     surface_area: int
@@ -160,9 +170,9 @@ class PropertySummaryResponse(BaseModel):
     # Prix
     price: int | None
     price_per_sqm: int | None
-    rent_price_monthly: int | None
-    charges_included: bool | None
-    deposit: int | None
+    rent_price_monthly: int | None = None
+    charges_included: bool | None = None
+    deposit: int | None = None
 
     # Caractéristiques
     property_type: PropertyType
