@@ -705,6 +705,7 @@ INSERT INTO properties (
     '2026-03-01', NULL, 3, TRUE, 0
 );
 
+
 SELECT '✅ === Properties seeded successfully! Total: ' || COUNT(*) FROM properties;
 
 -- Vérification de la cohérence photos_count
