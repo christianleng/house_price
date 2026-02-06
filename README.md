@@ -1,5 +1,7 @@
 # House Price Management Platform
 
+source .venv/bin/activate
+
 ## Purpose & Context
 
 This project is a comprehensive **House Price management platform** developed by Christian.L as a learning exercise. It combines:
