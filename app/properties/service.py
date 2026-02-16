@@ -292,7 +292,12 @@ def count_properties(db: Session, filters: schemas.PropertyFilterParams) -> int:
 
 
 def get_property_by_id(property_id: UUID, db: Session):
-    property = db.query(Property).filter(Property.id == property_id).first()
+    property = (
+        db.query(Property)
+        .options(joinedload(Property.photos))
+        .filter(Property.id == property_id)
+        .first()
+    )
 
     if not property:
         raise HTTPException(
