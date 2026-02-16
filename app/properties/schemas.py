@@ -1,6 +1,6 @@
 from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from pydantic import BaseModel, Field, field_validator, ConfigDict, AliasChoices
 from typing import List, Optional
 
 from app.entities.enum import PropertyType, EnergyRating, HeatingType, TransactionType
@@ -83,6 +83,18 @@ class CreatePropertyRequest(BaseModel):
         return v
 
 
+class PhotoResponse(BaseModel):
+    id: UUID
+    url: Optional[str] = Field(
+        None, validation_alias=AliasChoices("url", "url_photo", "path", "image_url")
+    )
+    url_thumbnail: Optional[str] = None
+    is_primary: bool = False
+    order: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class PropertyResponse(BaseModel):
     id: UUID
     agent_id: UUID
@@ -133,6 +145,9 @@ class PropertyResponse(BaseModel):
     construction_year: int | None = None
     available_from: datetime | None = None
     is_furnished: bool | None = None
+
+    photos: List[PhotoResponse] = []
+    thumbnail_url: Optional[str] = None
 
     created_at: datetime
     updated_at: datetime | None
