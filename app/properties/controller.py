@@ -48,11 +48,9 @@ async def get_properties_by_cities(
     transaction_type: schemas.TransactionType = Query(
         ..., description="Type de transaction"
     ),
-    page_size: int = Query(
-        10, ge=1, le=50, description="Nombre de propriétés par ville"
-    ),
-    sort_by: str = Query("created_at", description="Champ de tri"),
-    sort_order: str = Query("desc", description="Ordre de tri"),
+    page_size: int = Query(10, ge=1, le=50),
+    sort_by: str = Query("created_at"),
+    sort_order: str = Query("desc"),
 ):
     if len(cities) > 10:
         raise HTTPException(
@@ -79,32 +77,3 @@ async def get_properties_by_cities(
 @router.get("/{property_id}", response_model=schemas.PropertyResponse)
 async def get_property_by_id(property_id: UUID, db: DbSession):
     return service.get_property_by_id(property_id, db)
-
-
-@router.get("/agent/{agent_id}", response_model=schemas.PaginatedPropertiesResponse)
-async def get_agent_properties(
-    agent_id: Annotated[UUID, Path(description="ID de l'agent")],
-    filters: Annotated[schemas.PropertyFilterParams, Depends()],
-    db: DbSession,
-):
-    return service.get_agent_properties(agent_id, filters, db)
-
-
-@router.patch("/{property_id}", response_model=schemas.PropertyResponse)
-async def update_property(
-    property_id: UUID,
-    update_data: schemas.UpdatePropertyRequest,
-    current_agent: CurrentAgent,
-    db: DbSession,
-):
-    return service.update_property(property_id, update_data, current_agent.id, db)
-
-
-@router.delete("/{property_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_property(
-    property_id: UUID,
-    current_agent: CurrentAgent,
-    db: DbSession,
-):
-    service.delete_property(property_id, current_agent.id, db)
-    return
