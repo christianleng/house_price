@@ -1,13 +1,13 @@
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import and_, or_
 from app.entities.enum import TransactionType
 from app.entities.properties import Property
-from app.entities.agent import Agent
 from app.properties import schemas
 import math
 from fastapi import HTTPException, status
 import logging
 from uuid import UUID
+
+from dateutil.relativedelta import relativedelta
 
 
 def search_properties(
@@ -305,130 +305,6 @@ def get_property_by_id(property_id: UUID, db: Session):
         )
 
     return schemas.PropertyResponse.model_validate(property)
-
-
-def get_agent_properties(
-    agent_id: UUID, filters: schemas.PropertyFilterParams, db: Session
-) -> schemas.PaginatedPropertiesResponse:
-    agent = db.query(Agent).filter(Agent.id == agent_id).first()
-
-    if not agent:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Agent not found"
-        )
-
-    query = db.query(Property).filter(Property.agent_id == agent_id)
-
-    if filters.city:
-        query = query.filter(Property.city == filters.city)
-
-    if filters.price_min:
-        query = query.filter(Property.price >= filters.price_min)
-
-    if filters.price_max:
-        query = query.filter(Property.price <= filters.price_max)
-
-    if filters.property_type:
-        query = query.filter(Property.property_type == filters.property_type)
-
-    total = query.count()
-
-    sort_column = getattr(Property, filters.sort_by)
-    if filters.sort_order == "asc":
-        query = query.order_by(sort_column.asc())
-    else:
-        query = query.order_by(sort_column.desc())
-
-    skip = (filters.page - 1) * filters.page_size
-    query = query.offset(skip).limit(filters.page_size)
-
-    properties = query.all()
-
-    total_pages = math.ceil(total / filters.page_size)
-
-    items = [
-        schemas.PropertySummaryResponse.model_validate(prop) for prop in properties
-    ]
-
-    return schemas.PaginatedPropertiesResponse(
-        items=items,
-        total=total,
-        page=filters.page,
-        page_size=filters.page_size,
-        total_pages=total_pages,
-        has_next=filters.page < total_pages,
-        has_previous=filters.page > 1,
-    )
-
-
-def update_property(
-    property_id: UUID,
-    update_data: schemas.UpdatePropertyRequest,
-    current_agent: UUID,
-    db: Session,
-):
-    property_exist = db.query(Property).filter(Property.id == property_id).first()
-    if not property_exist:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Property not correct"
-        )
-
-    if property_exist.agent_id != current_agent:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not your property. You can only modify your own properties.",
-        )
-
-    update_dict = update_data.model_dump(exclude_unset=True)
-
-    for field, value in update_dict.items():
-        setattr(property_exist, field, value)
-
-    try:
-        db.commit()
-        db.refresh(property_exist)
-
-        logging.info(f"✅ Property updated: {property_exist.reference}")
-
-        return schemas.PropertyResponse.model_validate(property_exist)
-    except Exception as e:
-        db.rollback()
-        logging.error(f"❌ Failed to update property: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to update property",
-        )
-
-
-def delete_property(
-    property_id: UUID,
-    current_agent: UUID,
-    db: Session,
-) -> None:
-    property_to_delete = db.query(Property).filter(Property.id == property_id).filter()
-    if not property_to_delete:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"Property not correct"
-        )
-
-    if property_to_delete.agent_id != current_agent:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not your property. You can only delete your own properties.",
-        )
-    try:
-        db.delete(property_to_delete)
-        db.commit()
-
-        logging.info(f"✅ Property deleted: {property_to_delete.reference}")
-
-    except Exception as e:
-        db.rollback()
-        logging.error(f"❌ Failed to update property: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to update property",
-        )
 
 
 def get_properties_by_cities(
